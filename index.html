@@ -212,7 +212,7 @@
      2) Leave it "" to preview with the built-in sample data.
      ========================================================================= */
   var CONFIG = {
-    csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRCTe6d26mDOozZCkx6GnHpfsH81IJgeOE-xz0jA-Z-dQHAhgxBBaM7VcprNdYz5Q/pub?gid=984896739&single=true&output=csv",              // <-- paste your published-to-web CSV link here
+    csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRCTe6d26mDOozZCkx6GnHpfsH81IJgeOE-xz0jA-Z-dQHAhgxBBaM7VcprNdYz5Q/pub?gid=984896739&single=true&output=csv",
     refreshMinutes: 1,      // auto-refresh interval (0 = off)
     lowThreshold: 50         // % below this is flagged amber on bars & donuts
   };
@@ -222,7 +222,7 @@
      To reorder / rename a section, edit this list.
      ========================================================================= */
   var PANELS = [
-    { type:"Machine Utilisation", title:"Machine Utilisation", chart:"bars",  label:"process",   full:true },
+    { type:"OEE", title:"OEE", chart:"bars",  label:"process",   full:true },
     { type:"First Pass Yield",    title:"First Pass Yield",    chart:"donuts", label:"process",   full:true },
     { type:"WOL Pipe",            title:"WOL Pipe",            chart:"bars",   label:"projectId" },
     { type:"Flanges & Fitting",   title:"WOL Flanges",         chart:"bars",   label:"projectId", process:"WOL Flanges" },
@@ -235,10 +235,10 @@
   /* Built-in sample data (mirrors the current dashboard) --------------------- */
   var SAMPLE = [
     ["Type","Process","Start Week","End Week","Project ID","Value","Remark"],
-    ["Machine Utilisation","MACHINING","","","","0.97",""],
-    ["Machine Utilisation","SPOOLING","","","","0.91",""],
-    ["Machine Utilisation","QH & TH","","","","0.81",""],
-    ["Machine Utilisation","SHV","","","","0.79",""],
+    ["OEE","CNC","","","","0.83",""],
+    ["OEE","SHV","","","","0.78",""],
+    ["OEE","QH","","","","0.78",""],
+    ["OEE","TOTAL OEE","","","","0.80",""],
     ["First Pass Yield","PT. Solvents","","","","0.98",""],
     ["First Pass Yield","PT. WW","","","","1.00",""],
     ["First Pass Yield","FDI","","","","1.00",""],
@@ -405,7 +405,7 @@
   /* ---- headline KPIs ------------------------------------------------------ */
   function kpisHTML(data){
     function avg(rows){ if(!rows.length) return null; return rows.reduce(function(s,r){return s+toPct(r.value);},0)/rows.length; }
-    var mu=avg(data.filter(function(r){return r.type==="Machine Utilisation";}));
+    var mu=avg(data.filter(function(r){return r.type==="OEE";}));
     var fpy=avg(data.filter(function(r){return r.type==="First Pass Yield";}));
     // cumulative total = combined (comma) group, else sum of all cumulative
     var cum=data.filter(function(r){return r.type==="Deposition" && isCumul(r.startWeek);});
@@ -416,7 +416,7 @@
     var att = plan>0 ? (act/plan*100) : null;
 
     var cards=[
-      {label:"Avg. Machine Utilisation", val:mu, note:"Across all machine lines"},
+      {label:"Avg. OEE", val:mu, note:"Across all machine lines"},
       {label:"Avg. First Pass Yield",    val:fpy, note:"Quality — first-pass right"},
       {label:"Deposition vs Plan",        val:att, note:"Cumulative attainment"}
     ];
