@@ -213,7 +213,7 @@
      ========================================================================= */
   var CONFIG = {
     csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRCTe6d26mDOozZCkx6GnHpfsH81IJgeOE-xz0jA-Z-dQHAhgxBBaM7VcprNdYz5Q/pub?gid=984896739&single=true&output=csv",
-    refreshMinutes: 1,      // auto-refresh interval (0 = off)
+    refreshMinutes: 10,      // auto-refresh interval (0 = off)
     lowThreshold: 50         // % below this is flagged amber on bars & donuts
   };
 
@@ -335,7 +335,11 @@
 
   /* ---- renderers ---------------------------------------------------------- */
   function barsHTML(rows,labelKey){
-    rows=rows.slice().sort(function(a,b){return toPct(b.value)-toPct(a.value);});
+    rows=rows.slice().sort(function(a,b){
+      var aTotal=/^total/i.test(a[labelKey]||""), bTotal=/^total/i.test(b[labelKey]||"");
+      if(aTotal!==bTotal) return aTotal?1:-1;   // totals always sink to the bottom
+      return toPct(b.value)-toPct(a.value);
+    });
     return rows.map(function(r){
       var p=toPct(r.value), low=p<CONFIG.lowThreshold;
       return '<div class="ctd-bar">'+
