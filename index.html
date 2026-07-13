@@ -212,8 +212,8 @@
      2) Leave it "" to preview with the built-in sample data.
      ========================================================================= */
   var CONFIG = {
-    csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRCTe6d26mDOozZCkx6GnHpfsH81IJgeOE-xz0jA-Z-dQHAhgxBBaM7VcprNdYz5Q/pub?gid=984896739&single=true&output=csv",              // <-- paste your published-to-web CSV link here
-    refreshMinutes: 1,      // auto-refresh interval (0 = off)
+    csvUrl: "",              // <-- paste your published-to-web CSV link here
+    refreshMinutes: 10,      // auto-refresh interval (0 = off)
     lowThreshold: 50         // % below this is flagged amber on bars & donuts
   };
 
@@ -296,11 +296,17 @@
   function isCumul(s){ return /cum+ul/i.test(s||""); } // tolerant of "Cumulative" & the sheet's "Cummulative"
 
   function normalize(rows){
-    var headers=rows[0].map(function(h){return String(h).trim().toLowerCase();});
+    // find the real header row (sheets often have a title/instruction row above it)
+    var headerRowIndex=-1, headers=[];
+    for(var hi=0; hi<Math.min(rows.length,10); hi++){
+      var candidate=rows[hi].map(function(h){return String(h).trim().toLowerCase();});
+      if(candidate.indexOf("type")>-1 && candidate.indexOf("value")>-1){ headerRowIndex=hi; headers=candidate; break; }
+    }
+    if(headerRowIndex===-1){ headerRowIndex=0; headers=rows[0].map(function(h){return String(h).trim().toLowerCase();}); }
     function idx(n){return headers.indexOf(n);}
     var iType=idx("type"),iProc=idx("process"),iSW=idx("start week"),
         iEW=idx("end week"),iPID=idx("project id"),iVal=idx("value"),iRem=idx("remark");
-    return rows.slice(1).map(function(r){
+    return rows.slice(headerRowIndex+1).map(function(r){
       return {
         type:(r[iType]||"").trim(),
         process:(r[iProc]||"").trim(),
